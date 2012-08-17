@@ -7,6 +7,11 @@ app.use(express.bodyParser());
 app.use(express.cookieParser('keyboard catspy'));
 app.use(express.session());
 
+var users = {
+  "catspy": "steps",
+  "milo": "man"
+}
+
 var authenticate = function(req, res, next) {
   console.log('authenticating');
   if (!req.session.user) {
@@ -21,9 +26,14 @@ app.get('/', authenticate, function(req, res) {
 });
 
 app.get('/login', function(req, res) {
+  if (req.session.user)
+    res.redirect('/');
+
+  var errMsg = req.session.loginError ? '<i>' + req.session.loginError + '</i><br />' : '';
   var html = '<!DOCTYPE html>' +
              '<html>' +
              '<body>' +
+             errMsg +
              '<form action="/login" method="POST">' +
              '<input type="text" name="username" placeholder="Username" /><br />' +
              '<input type="password" name="password" placeholder="Password" /><br />' +
@@ -35,15 +45,16 @@ app.get('/login', function(req, res) {
 });
 
 app.post('/login', function(req, res) {
-  console.log('Username = ' + req.body.username);
-  var username = 'catspy';
-  //if (username === req.body.username) {
-    req.session.user = 'catspy';
+  var username = req.body.username;
+  var userPass = users[username];
+  if (userPass && userPass === req.body.password) {
+    req.session.loginError = null;
+    req.session.user = username;
     res.redirect('/');
-  //} else {
-    //console.log('Not equal!');
-    //res.redirect('/login');
-  //}
+  } else {
+    req.session.loginError = 'Wrong username or password.';
+    res.redirect('/login');
+  }
 });
 
 app.get('/logout', function(req, res) {
@@ -51,5 +62,9 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
-app.listen(3000);
-console.log('Listening on port 3000');
+app.get('/hey', authenticate, function(req, res) {
+  res.send('Hello ' + req.session.user + '. This is another secured page.');
+});
+
+app.listen(3001);
+console.log('Listening on port 3001');
