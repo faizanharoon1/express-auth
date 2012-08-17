@@ -66,5 +66,5 @@ app.get('/hey', authenticate, function(req, res) {
   res.send('Hello ' + req.session.user + '. This is another secured page.');
 });
 
-app.listen(3001);
-console.log('Listening on port 3001');
+app.listen(3000);
+console.log('Listening on port 3000');
