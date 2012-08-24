@@ -10,7 +10,7 @@ app.use(express.session());
 var users = {
   "catspy": "steps",
   "milo": "man"
-}
+};
 
 var authenticate = function(req, res, next) {
   console.log('authenticating');
